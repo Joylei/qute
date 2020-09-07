@@ -1,0 +1,8 @@
+[unstable]
+build-std=["core", "std", "compiler_builtins", "alloc"]
+cargo-features = ["strip", "build-std"]
+
+[rust]
+channel="nightly"
+
+[target.x86_64-unknown-linux-musl]

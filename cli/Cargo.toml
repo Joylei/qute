@@ -1,0 +1,31 @@
+cargo-features = ["strip"]
+
+[package]
+name = "qute-cli"
+version = "0.1.0"
+authors = ["joylei <leingliu@gmail.com>"]
+edition = "2018"
+
+[[bin]]
+name="qute"
+path="src/main.rs"
+
+[profile.release]
+lto = true
+panic = "abort"
+codegen-units = 1
+opt-level = "s"
+strip="symbols"
+debug=0
+
+[dependencies]
+pico-args = "*"
+log = {version="*", default-features=false, features=["std"]}
+stderrlog="*"
+qute-ctrl={path="../ctrl"}
+
+[dev-dependencies]
+assert_cmd = "*"
+predicates = "*"
+
+[target]
