@@ -1,6 +1,6 @@
 # qute
 
-QNAP device control for IT8258
+QNAP device control for ITE8528
 
 ## USAGE
 ```
