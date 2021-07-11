@@ -10,6 +10,10 @@ pub fn run(args: &mut Arguments, ctx: &Context) -> Result<()> {
         return Ok(());
     }
     let cmd = args.subcommand().ok().flatten().unwrap_or_default();
+    // let index: u8 = args
+    //     .opt_value_from_str(["-i", "--index"])
+    //     .map_err(|e| Error::with_chain(e, "invalid input for index"))?
+    //     .unwrap_or(0);
     match cmd.as_str() {
         "cpu" => return process(args, ctx, 0),
         "sys" => return process(args, ctx, 5),
@@ -21,7 +25,7 @@ pub fn run(args: &mut Arguments, ctx: &Context) -> Result<()> {
 
 fn process(_args: &mut Arguments, ctx: &Context, index: u8) -> Result<()> {
     let tag = match index {
-        0 => "cpu",
+        idx if idx < 5 => "cpu",
         5 => "sys",
         _ => return Err("Not supported".into()),
     };

@@ -16,7 +16,7 @@ use std::time::Duration;
 const SPIN_INTERVAL: u64 = 0x32;
 
 ///how many times spinning for status; total time = times * SPIN_INTERVAL
-const WAIT_TIMES: u32 = 500;
+const WAIT_TIMES: u32 = 20;
 
 /// low level abstraction of EC
 pub struct Device {

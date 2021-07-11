@@ -1,4 +1,3 @@
-extern crate cpuio;
 extern crate libc;
 use super::{Port, ReadByte, WriteByte};
 use crate::errors::*;
@@ -7,7 +6,7 @@ use std::fmt;
 
 pub struct AsmPort {
     port: u16,
-    io: cpuio::UnsafePort<u8>,
+    //io: cpuio::UnsafePort<u8>,
 }
 
 impl AsmPort {
@@ -20,7 +19,7 @@ impl AsmPort {
         }
         let value = Self {
             port,
-            io: unsafe { cpuio::UnsafePort::new(port) },
+            //io: unsafe { cpuio::UnsafePort::new(port) },
         };
         Ok(value)
     }
@@ -42,7 +41,7 @@ impl fmt::Display for AsmPort {
 impl ReadByte for AsmPort {
     #[inline]
     fn read(&mut self) -> Result<u8> {
-        let value = unsafe { self.io.read() };
+        let value = unsafe { inb(self.port) };
         Ok(value)
     }
 }
@@ -51,8 +50,24 @@ impl WriteByte for AsmPort {
     #[inline]
     fn write(&mut self, value: u8) -> Result<()> {
         unsafe {
-            self.io.write(value);
+            outb(value, self.port);
         }
         Ok(())
     }
+}
+
+// https://github.com/emk/toyos-rs
+
+#[inline]
+unsafe fn outb(value: u8, port: u16) {
+    llvm_asm!("outb %al, %dx" :: "{dx}"(port), "{al}"(value) :: "volatile");
+}
+
+#[inline]
+unsafe fn inb(port: u16) -> u8 {
+    // The registers for the `in` and `out` instructions are always the
+    // same: `a` for value, and `d` for the port address.
+    let result: u8;
+    llvm_asm!("inb %dx, %al" : "={al}"(result) : "{dx}"(port) :: "volatile");
+    result
 }

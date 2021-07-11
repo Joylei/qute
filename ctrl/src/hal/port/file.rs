@@ -1,5 +1,6 @@
 use super::{Port, ReadByte, WriteByte};
 use crate::errors::*;
+use crate::ffi;
 use libc;
 use std::fmt;
 use std::fs;
@@ -17,6 +18,12 @@ pub struct FilePort {
 
 impl FilePort {
     pub fn open(port: u16) -> Result<Self> {
+        unsafe {
+            //if libc::iopl(3) != 0 {
+            if ffi::ioperm(port.into(), 1, 1) != 0 {
+                return Err(format!("Failed to obtain io permission at port {:#04x}", port).into());
+            }
+        }
         let file = "/dev/port";
         let mut fp = fs::OpenOptions::new()
             .read(true)

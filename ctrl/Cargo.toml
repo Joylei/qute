@@ -1,14 +1,10 @@
 [package]
 name = "qute-ctrl"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["joylei <leingliu@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-libc={version="*"}
-log = {version="*", default-features=false, features=["std"]}
-cpuio="*"
-error-chain= {version ="*", default-features=false, features=[]}
-
-#[build-dependencies]
-#bindgen="*"
+libc = { version="*" }
+log = { version="*", default-features=false, features=["std"] }
+error-chain = { version="*", default-features=false, features=[] }

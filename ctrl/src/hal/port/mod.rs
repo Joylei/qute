@@ -15,10 +15,10 @@ pub trait Port: ReadByte + WriteByte + fmt::Display {
 }
 
 mod asm;
-mod file;
+//mod file;
 /// re-export
 pub use asm::AsmPort;
-pub use file::FilePort;
+//pub use file::FilePort;
 
 /// factory method
 pub fn open(port: u16) -> Result<Box<dyn Port>> {
@@ -28,6 +28,6 @@ pub fn open(port: u16) -> Result<Box<dyn Port>> {
     return Ok(Box::new(v));
     // }
 
-    //let v = FileAccessor::open(port)?;
+    //let v = FilePort::open(port)?;
     //Ok(Box::new(v))
 }

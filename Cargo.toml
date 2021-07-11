@@ -1,7 +1,11 @@
+cargo-features = ["strip"]
 
 [workspace]
-members = [
-    "cli",
-    "ctrl"
-]
+members = ["cli", "ctrl"]
 
+[profile.release]
+codegen-units = 1
+lto = true
+debug = false
+opt-level = 3
+strip = "symbols"
