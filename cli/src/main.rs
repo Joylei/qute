@@ -80,15 +80,16 @@ USAGE: {} [OPTIONS] [COMMANDS]
 
 OPTIONS:
   -V, --version                 Show version number
-  -h, --help                    Show help message
-  -v, --verbose [level:N]       Show verbose messages
-  -q, --quiet                   Silence all output
+  -h, --help                      Show help message
+  -v, --verbose [level:N]   Show verbose messages
+  -q, --quiet                     Silence all output
 
 COMMANDS:
-  eup                           get or set Eup mode
-  fan                           get or set fan speed
-  power                         get or set power recovery mode
-  temp                          get temperature
+  eup                                get or set Eup mode
+  fan                                 get or set fan speed
+  power                            get or set power recovery mode
+  temp                              get temperature
+  monitor                         auto adjust fan speed based on temperatures
 ",
         APP_NAME, APP_VERSION, APP_NAME
     );
