@@ -1,7 +1,9 @@
 use super::Feature;
-use crate::errors::*;
-use crate::hal::ec::Controller;
-use crate::types::{LedColor, LedMode};
+use crate::{
+    hal::ec::Controller,
+    types::{LedColor, LedMode},
+    Error, Result,
+};
 
 pub trait LedControl: Feature {
     /// set led brightness
@@ -21,7 +23,10 @@ pub trait LedControl: Feature {
     ///  led_status: green, red, auto
     fn set_fan_led(&self, fan_id: u8, color: LedColor) -> Result<()> {
         if fan_id > 7 {
-            return Err(format!("led control: invalid led index {}", fan_id).into());
+            return Err(Error::InvalidValue(format!(
+                "led control: invalid led index {}",
+                fan_id
+            )));
         }
         let cmd = 0x16e;
         let value: u8 = color.into();
@@ -42,7 +47,11 @@ pub trait LedControl: Feature {
         let v = match (color, enable) {
             (LedColor::Green, true) => 2,
             (LedColor::Red, true) => 1,
-            (_, true) => return Err("led control: invalid input values".into()),
+            (_, true) => {
+                return Err(Error::InvalidValue(
+                    "led control: invalid input values".to_owned(),
+                ))
+            }
             (_, false) => 0,
         };
         self.with_ec(|ec| ec.set_byte(0x155, v))

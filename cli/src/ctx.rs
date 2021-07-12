@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::errors::*;
+use anyhow::Result;
 use qute_ctrl::platform::Platform;
 
 /// global options
@@ -30,6 +30,6 @@ impl Context {
     }
 
     pub fn get_platform(&self) -> Result<Platform> {
-        Platform::with_default()
+        Ok(Platform::with_default()?)
     }
 }

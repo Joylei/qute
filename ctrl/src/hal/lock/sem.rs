@@ -1,4 +1,4 @@
-use crate::errors::*;
+use crate::{Error, Result};
 use std::cell::UnsafeCell;
 use std::fmt;
 use std::mem;
@@ -38,11 +38,10 @@ impl<T> Mutex<T> {
                 }
             }
         }
-        Err(format!(
+        Err(Error::SemError(format!(
             "sem mutex lock: failed to obtain lock for resource {:#08x}",
             self.key
-        )
-        .into())
+        )))
     }
 }
 
@@ -110,11 +109,10 @@ impl SemMutex {
                 }
             }
         }
-        Err(format!(
+        Err(Error::SemError(format!(
             "sem mutex lock: failed to obtain lock for resource {:#08x}",
             key
-        )
-        .into())
+        )))
     }
 }
 

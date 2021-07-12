@@ -1,5 +1,5 @@
 use super::port::{open, Port};
-use crate::errors::*;
+use crate::Result;
 
 pub struct Controller {
     index_port: Box<dyn Port>,

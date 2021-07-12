@@ -1,5 +1,5 @@
-use crate::ctx::Context;
-use crate::errors::*;
+use crate::{ctx::Context, utils::temp_c2f};
+use anyhow::Result;
 use qute_ctrl::Temperature;
 
 use pico_args::Arguments;
@@ -27,11 +27,11 @@ fn process(_args: &mut Arguments, ctx: &Context, index: u8) -> Result<()> {
     let tag = match index {
         idx if idx < 5 => "cpu",
         5 => "sys",
-        _ => return Err("Not supported".into()),
+        _ => return Err(anyhow!("Not supported")),
     };
     let chip = ctx.get_platform()?;
     let val = chip.get_temperature(index)?;
-    println!("{} temperature: {} ℃ / {} ℉", tag, val, temp_c2f(val));
+    println!("{} temperature: {:.1} ℃ / {} ℉", tag, val, temp_c2f(val));
     Ok(())
 }
 
@@ -49,10 +49,4 @@ COMMANDS:
   sys                           Fetch sys temperature
 "
     );
-}
-
-/// F=C×1.8+32
-/// C=(F-32)÷1.8
-fn temp_c2f(temp: f32) -> f32 {
-    temp * 1.8 + 32.0
 }

@@ -1,8 +1,12 @@
 use super::feature::*;
-use crate::errors::*;
-use crate::hal::ec::{Controller, Device};
-use crate::hal::lock::Mutex;
-use crate::hal::sio::Controller as SuperIO;
+use crate::{
+    hal::{
+        ec::{Controller, Device},
+        lock::Mutex,
+        sio::Controller as SuperIO,
+    },
+    Error, Result,
+};
 
 fn check_platform() -> Result<()> {
     //ITE 0x2E,0x2F or 0x4E, 0x4F
@@ -15,7 +19,7 @@ fn check_platform() -> Result<()> {
     if id == 0x8528 {
         Ok(())
     } else {
-        Err("only IT8528 is supported".into())
+        Err(Error::PlatformNotSupport)
     }
 }
 

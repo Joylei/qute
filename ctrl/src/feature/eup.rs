@@ -1,7 +1,5 @@
 use super::Feature;
-use crate::errors::*;
-use crate::hal::ec::Controller;
-use crate::types::SwitchState;
+use crate::{hal::ec::Controller, types::SwitchState, Error, Result};
 
 pub trait EupControl: Feature {
     fn get_eup_state(&self) -> Result<SwitchState> {
@@ -10,7 +8,7 @@ pub trait EupControl: Feature {
             //cmd = 0x101
             let v = ec.get_byte(0x101)?;
             if v & 8 == 0 {
-                return Err("eup not supported".into());
+                return Err(Error::InvalidValue("eup not supported".to_owned()));
             }
             //cmd = 0x121
             let v = ec.get_byte(0x121)?;
@@ -25,7 +23,7 @@ pub trait EupControl: Feature {
             //cmd = 0x101
             let v = ec.get_byte(0x101)?;
             if v & 8 == 0 {
-                return Err("eup not supported".into());
+                return Err(Error::InvalidValue("eup not supported".to_owned()));
             }
             //cmd = 0x121
             let cur_val = ec.get_byte(0x121)?;

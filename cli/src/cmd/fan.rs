@@ -1,10 +1,10 @@
-use crate::ctx::Context;
-use crate::errors::*;
+use crate::ctx::Context as PlatformContext;
+use anyhow::{Context, Result};
 use qute_ctrl::FanControl;
 
 use pico_args::Arguments;
 
-pub fn run(args: &mut Arguments, ctx: &Context) -> Result<()> {
+pub fn run(args: &mut Arguments, ctx: &PlatformContext) -> Result<()> {
     let cmd = args.subcommand().ok().flatten().unwrap_or_default();
     match cmd.as_str() {
         "pwm" => return process_pwm(args, ctx),
@@ -32,7 +32,7 @@ COMMANDS:
     );
 }
 
-fn process_pwm(args: &mut Arguments, ctx: &Context) -> Result<()> {
+fn process_pwm(args: &mut Arguments, ctx: &PlatformContext) -> Result<()> {
     if ctx.get_opts().help {
         println!(
             r"qute fan pwm [OPTIONS]
@@ -49,16 +49,16 @@ OPTIONS:
     }
     let index: u8 = args
         .opt_value_from_str(["-i", "--index"])
-        .map_err(|e| Error::with_chain(e, "invalid input for index"))?
+        .with_context(|| "invalid input for index")?
         .unwrap_or(0);
     let config = ctx.get_config();
     if index >= config.fan.len() as u8 {
-        return Err(format!("fan pwm: invalid fan index {}", index).into());
+        return Err(anyhow!(format!("fan pwm: invalid fan index {}", index)));
     }
     let chip = ctx.get_platform()?;
     let val: Option<u8> = args
         .opt_value_from_str(["-v", "--value"])
-        .map_err(|e| Error::with_chain(e, "invalid input for value"))?;
+        .with_context(|| "invalid input for value")?;
     if let Some(val) = val {
         //set val
         chip.set_fan_speed(index, val)?;
@@ -71,7 +71,7 @@ OPTIONS:
     Ok(())
 }
 
-fn process_speed(args: &mut Arguments, ctx: &Context) -> Result<()> {
+fn process_speed(args: &mut Arguments, ctx: &PlatformContext) -> Result<()> {
     if ctx.get_opts().help {
         println!(
             r"qute fan speed [OPTIONS]
@@ -87,11 +87,11 @@ OPTIONS:
     }
     let index: u8 = args
         .opt_value_from_str(["-i", "--index"])
-        .map_err(|e| Error::with_chain(e, "invalid input for index"))?
+        .with_context(|| "invalid input for index")?
         .unwrap_or(0);
     let config = ctx.get_config();
     if index >= config.fan.len() as u8 {
-        return Err(format!("fan speed: invalid fan index {}", index).into());
+        return Err(anyhow!(format!("fan speed: invalid fan index {}", index)));
     }
     //get speed
     let chip = ctx.get_platform()?;
@@ -100,7 +100,7 @@ OPTIONS:
     Ok(())
 }
 
-fn process_status(args: &mut Arguments, ctx: &Context) -> Result<()> {
+fn process_status(args: &mut Arguments, ctx: &PlatformContext) -> Result<()> {
     if ctx.get_opts().help {
         println!(
             r"qute fan status [OPTIONS]
@@ -115,12 +115,12 @@ OPTIONS:
         return Ok(());
     }
     let index: u8 = args
-        .opt_value_from_str(["-i", "--index"])
-        .map_err(|e| Error::with_chain(e, "invalid input for index"))?
+        .opt_value_from_str::<_, u8>(["-i", "--index"])
+        .with_context(|| "invalid input for index")?
         .unwrap_or(0);
     let config = ctx.get_config();
     if index >= config.fan.len() as u8 {
-        return Err(format!("fan status: invalid fan index {}", index).into());
+        return Err(anyhow!(format!("fan status: invalid fan index {}", index)));
     }
     //get speed
     let chip = ctx.get_platform()?;

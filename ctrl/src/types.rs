@@ -1,4 +1,4 @@
-use crate::errors::*;
+use crate::{Error, Result};
 use std::fmt;
 use std::str::FromStr;
 
@@ -72,7 +72,11 @@ impl FromStr for PowerRecoveryMode {
             "last" => PowerRecoveryMode::Last,
             "on" => PowerRecoveryMode::On,
             "off" => PowerRecoveryMode::Off,
-            _ => return Err("invalid input, must be one of last|on|off".into()),
+            _ => {
+                return Err(Error::InvalidValue(
+                    "invalid input, must be one of last|on|off".to_owned(),
+                ))
+            }
         };
         Ok(mode)
     }
@@ -141,7 +145,9 @@ impl FromStr for SwitchState {
             } else if t == "off" {
                 Self::Off
             } else {
-                return Err("invalid input, must be one of on|off".into());
+                return Err(Error::InvalidValue(
+                    "invalid input, must be one of on|off".to_owned(),
+                ));
             }
         };
         Ok(mode)

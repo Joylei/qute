@@ -1,5 +1,5 @@
-use crate::errors::*;
 use crate::hal::ec::Controller;
+use crate::Result;
 
 pub trait Feature {
     fn with_ec<F, R>(&self, f: F) -> Result<R>

@@ -5,6 +5,6 @@ authors = ["joylei <leingliu@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-libc = { version="*" }
-log = { version="*", default-features=false, features=["std"] }
-error-chain = { version="*", default-features=false, features=[] }
+libc = { version="0.2" }
+log = { version="0.4", default-features=false, features=["std"] }
+thiserror = "1"

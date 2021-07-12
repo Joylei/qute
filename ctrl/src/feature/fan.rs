@@ -1,6 +1,5 @@
 use super::Feature;
-use crate::errors::*;
-use crate::hal::ec::Controller;
+use crate::{hal::ec::Controller, Error, Result};
 use std::io;
 
 pub trait FanControl: Feature {
@@ -11,7 +10,12 @@ pub trait FanControl: Feature {
             idx if idx == 6 || idx == 7 => 0x244,
             idx if idx >= 0x14 && idx <= 0x19 => 0x259,
             idx if idx >= 0x1e && idx <= 0x23 => 0x25a,
-            idx => return Err(format!("fan control: invalid fan id {}", idx).into()),
+            idx => {
+                return Err(Error::InvalidValue(format!(
+                    "fan control: invalid fan id {}",
+                    idx
+                )))
+            }
         };
 
         self.with_ec(|ec| {
@@ -37,7 +41,12 @@ pub trait FanControl: Feature {
             0xb => (0x65e, 0x65d),
             idx if idx >= 0x14 && idx <= 0x19 => ((idx + 0x30e) * 2, (idx - 0x14) * 2 + 0x645),
             idx if idx >= 0x1e && idx <= 0x23 => ((idx + 0x2f8) * 2, (idx - 0x1e) * 23 + 0x62d),
-            idx => return Err(format!("fan control: invalid fan id {}", idx).into()),
+            idx => {
+                return Err(Error::InvalidValue(format!(
+                    "fan control: invalid fan id {}",
+                    idx
+                )))
+            }
         };
 
         self.with_ec(|ec| {
@@ -58,7 +67,12 @@ pub trait FanControl: Feature {
             idx if idx == 6 || idx == 7 => (0x223, 0x24b),
             idx if idx >= 0x14 && idx <= 0x19 => (0x221, 0x22f),
             idx if idx >= 0x1e && idx <= 0x23 => (0x222, 0x23b),
-            idx => return Err(format!("fan control: invalid fan id {}", idx).into()),
+            idx => {
+                return Err(Error::InvalidValue(format!(
+                    "fan control: invalid fan id {}",
+                    idx
+                )))
+            }
         };
 
         self.with_ec(|ec| {
@@ -76,7 +90,12 @@ pub trait FanControl: Feature {
             idx if idx == 6 || idx == 7 => 0x24b,
             idx if idx >= 0x14 && idx <= 0x19 => 0x22f,
             idx if idx >= 0x1e && idx <= 0x23 => 0x23b,
-            idx => return Err(format!("fan control: invalid fan id {}", idx).into()),
+            idx => {
+                return Err(Error::InvalidValue(format!(
+                    "fan control: invalid fan id {}",
+                    idx
+                )))
+            }
         };
 
         self.with_ec(|ec| {
@@ -93,13 +112,17 @@ pub trait FanControl: Feature {
             idx if idx <= 4 => 0x296,
             idx if idx == 6 || idx == 7 => 0x295,
             idx if idx == 10 || idx == 0xb => {
-                return Err(format!(
+                return Err(Error::InvalidValue(format!(
                     "fan control: set the fan slope to power fan {} is not supported",
                     idx
-                )
-                .into())
+                )))
             }
-            idx => return Err(format!("fan control: invalid fan id {}", idx).into()),
+            idx => {
+                return Err(Error::InvalidValue(format!(
+                    "fan control: invalid fan id {}",
+                    idx
+                )))
+            }
         };
 
         self.with_ec(|ec| ec.set_byte(cmd, slope))

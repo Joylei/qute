@@ -1,4 +1,4 @@
-use crate::errors::*;
+use crate::Result;
 use std::fmt;
 use std::io;
 

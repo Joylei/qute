@@ -1,7 +1,9 @@
 use super::Feature;
-use crate::errors::*;
-use crate::hal::ec::Controller;
-use crate::types::{PowerRecoveryMode, ShutdownMode};
+use crate::{
+    hal::ec::Controller,
+    types::{PowerRecoveryMode, ShutdownMode},
+    Error, Result,
+};
 use std::io;
 
 pub trait Power: Feature {
@@ -14,32 +16,32 @@ pub trait Power: Feature {
         })
     }
 
-    fn force_shutdown(&self, mode: ShutdownMode, timeout: u8) -> Result<()> {
-        trace!("force shutdown");
-        let flag = mode.into();
-        self.with_ec(|ec| {
-            ec.set_byte(0x245, flag)?;
-            if mode == ShutdownMode::Reboot {
-                if let Err(_) = util::check_rtc() {
-                    if let Ok(val) = ec.get_byte(0x249) {
-                        let val = val | 1;
-                        ec.set_byte(0x249, val); //ignore error
-                    }
-                }
-            }
-            ec.set_byte(0x248, timeout)
-        })
-    }
+    // fn force_shutdown(&self, mode: ShutdownMode, timeout: u8) -> Result<()> {
+    //     trace!("force shutdown");
+    //     let flag = mode.into();
+    //     self.with_ec(|ec| {
+    //         ec.set_byte(0x245, flag)?;
+    //         if mode == ShutdownMode::Reboot {
+    //             if let Err(_) = util::check_rtc() {
+    //                 if let Ok(val) = ec.get_byte(0x249) {
+    //                     let val = val | 1;
+    //                     ec.set_byte(0x249, val); //ignore error
+    //                 }
+    //             }
+    //         }
+    //         ec.set_byte(0x248, timeout)
+    //     })
+    // }
 
     /// get power supply status
     fn get_power_supply_status(&self, arg1: u8) -> Result<()> {
         if arg1 < 1 || arg1 > 2 {
-            return Err(format!("invalid parameter: {}", arg1).into());
+            return Err(Error::InvalidValue(format!("invalid parameter: {}", arg1)));
         }
         self.with_ec(|ec| {
             let value = ec.get_byte(0x45)?;
             if (value >> (arg1 & 0x1f)) & 0b1 == 0 {
-                return Err("bad power supply status".into());
+                return Err(Error::InvalidValue("bad power supply status".to_owned()));
             }
             Ok(())
         })
@@ -67,36 +69,36 @@ pub trait Power: Feature {
     }
 }
 
-mod util {
-    use crate::errors::*;
-    use crate::ffi;
-    use libc;
-    use std::fs::OpenOptions;
-    use std::io;
-    use std::os::raw::{c_int, c_ulong, c_void};
-    use std::os::unix::fs::OpenOptionsExt;
-    use std::os::unix::io::AsRawFd;
+// mod util {
+//     use crate::errors::*;
+//     use crate::ffi;
+//     use libc;
+//     use std::fs::OpenOptions;
+//     use std::io;
+//     use std::os::raw::{c_int, c_ulong, c_void};
+//     use std::os::unix::fs::OpenOptionsExt;
+//     use std::os::unix::io::AsRawFd;
 
-    pub fn check_rtc() -> Result<()> {
-        let dev = "/dev/rtc";
-        let fd = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .custom_flags(libc::O_NONBLOCK)
-            .open(dev)
-            .chain_err(|| format!("Failed to open {}", dev))?;
-        let buf = &mut [0_u8; 8];
-        let cmd = 0x80287010;
+//     pub fn check_rtc() -> Result<()> {
+//         let dev = "/dev/rtc";
+//         let fd = OpenOptions::new()
+//             .read(true)
+//             .write(true)
+//             .custom_flags(libc::O_NONBLOCK)
+//             .open(dev)
+//             .chain_err(|| format!("Failed to open {}", dev))?;
+//         let buf = &mut [0_u8; 8];
+//         let cmd = 0x80287010;
 
-        unsafe {
-            if ffi::ioctl(fd.as_raw_fd(), cmd, buf.as_mut_ptr() as *mut c_void) < 0 {
-                return Err(io::Error::last_os_error())
-                    .chain_err(|| "Failed to perform ioctl command on /dev/rtc");
-            }
-        }
-        if buf[0] != 0 {
-            return Ok(());
-        }
-        Err(format!("Failed to read from {}", dev).into())
-    }
-}
+//         unsafe {
+//             if ffi::ioctl(fd.as_raw_fd(), cmd, buf.as_mut_ptr() as *mut c_void) < 0 {
+//                 return Err(io::Error::last_os_error())
+//                     .chain_err(|| "Failed to perform ioctl command on /dev/rtc");
+//             }
+//         }
+//         if buf[0] != 0 {
+//             return Ok(());
+//         }
+//         Err(format!("Failed to read from {}", dev).into())
+//     }
+// }

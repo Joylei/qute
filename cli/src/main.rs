@@ -1,18 +1,22 @@
+#![feature(never_type)]
+
 //#![deny(missing_docs, warnings)]
 #[macro_use]
 extern crate log;
 extern crate qute_ctrl;
 extern crate stderrlog;
+#[macro_use]
+extern crate anyhow;
 
 pub(crate) mod cmd;
 pub(crate) mod config;
 pub(crate) mod ctx;
+pub(crate) mod utils;
 
 use crate::config::{Config, FanConfig};
-use crate::ctx::{Context, Options};
+use crate::ctx::{Context as PlatformContext, Options};
+use anyhow::{Context, Result};
 use pico_args::Arguments;
-use qute_ctrl::errors;
-use qute_ctrl::errors::*;
 use std::alloc::System;
 
 #[global_allocator]
@@ -27,7 +31,7 @@ fn main() -> Result<()> {
         quiet: args.contains(["-q", "--quiet"]),
         verbose: args
             .opt_value_from_str(["-v", "--verbose"])
-            .map_err(|e| Error::with_chain(e, "invalid value for verbose"))?
+            .with_context(|| "invalid value for verbose")?
             .unwrap_or(0),
         help: args.contains(["-h", "--help"]),
     };
@@ -46,11 +50,11 @@ fn main() -> Result<()> {
             min_speed: 0,
         }],
     };
-    let ctx = Context::new(config, opts);
+    let ctx = PlatformContext::new(config, opts);
     run(&mut args, &ctx)
 }
 
-fn run(args: &mut Arguments, ctx: &Context) -> Result<()> {
+fn run(args: &mut Arguments, ctx: &PlatformContext) -> Result<()> {
     //check version
     if args.contains(["-V", "--version"]) {
         println!("version: {}", APP_VERSION);
@@ -63,6 +67,7 @@ fn run(args: &mut Arguments, ctx: &Context) -> Result<()> {
         "fan" => return cmd::fan::run(args, ctx),
         "power" => return cmd::power::run(args, ctx),
         "temp" => return cmd::temp::run(args, ctx),
+        "monitor" => return cmd::monitor::run(args, ctx),
         _ => {}
     }
     // no sub command

@@ -3,17 +3,19 @@
 //http://wiki.laptop.org/go/Ec_specification#Old_Port_6c_Command_Protocol
 //https://blog.csdn.net/zhao_longwei/article/details/50454779
 use super::status::Status;
-use crate::errors::*;
-use crate::hal::port::{open, Port};
-use std::cell::RefCell;
-use std::fmt;
-use std::io;
-use std::ops;
-use std::ops::Not;
-use std::thread;
-use std::time::Duration;
+use crate::{
+    hal::port::{open, Port},
+    Error, Result,
+};
+use std::{
+    cell::RefCell,
+    fmt, io,
+    ops::{self, Not},
+    thread,
+    time::Duration,
+};
 
-const SPIN_INTERVAL: u64 = 0x32;
+const SPIN_INTERVAL: u64 = 20;
 
 ///how many times spinning for status; total time = times * SPIN_INTERVAL
 const WAIT_TIMES: u32 = 20;
@@ -39,20 +41,19 @@ impl Device {
     }
 
     fn poll_until(&self, mask: Status, times: u32) -> Result<()> {
-        let p = &mut *self.cmd_port.borrow_mut();
         for _ in 0..times {
+            let p = &mut *self.cmd_port.borrow_mut();
             let status = p.read()?;
             if mask.satisfied(status) {
                 return Ok(());
             }
             thread::sleep(Duration::from_millis(SPIN_INTERVAL));
         }
-        Err(format!(
+        let port = (*self.cmd_port.borrow()).get_port();
+        Err(Error::Timeout(format!(
             "ec: timed out waiting for {} at port {:#04x}",
-            mask,
-            p.get_port()
-        )
-        .into())
+            mask, port
+        )))
     }
 
     /// wait completion of other command, and clear buffer

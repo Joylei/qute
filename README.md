@@ -1,6 +1,6 @@
 # qute
 
-QNAP device control for ITE8528
+QNAP device control for ITE8528, especially for my TS-453B mini.
 
 ## USAGE
 ```

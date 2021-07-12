@@ -1,6 +1,5 @@
 use super::Feature;
-use crate::errors::*;
-use crate::hal::ec::Controller;
+use crate::{hal::ec::Controller, Error, Result};
 
 pub trait Temperature: Feature {
     fn get_temperature(&self, sensor_id: u8) -> Result<f32> {
@@ -15,7 +14,12 @@ pub trait Temperature: Feature {
             idx if idx == 10 => 0x659,
             idx if idx == 0xb => 0x65c,
             idx if idx >= 0xf && idx <= 0x26 => idx + 0x5f7,
-            idx => return Err(format!("temperature: invalid sensor id {}", idx).into()),
+            idx => {
+                return Err(Error::InvalidValue(format!(
+                    "temperature: invalid sensor id {}",
+                    idx
+                )))
+            }
         };
 
         self.with_ec(|ec| {

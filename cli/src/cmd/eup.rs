@@ -1,17 +1,17 @@
-use crate::ctx::Context;
-use crate::errors::*;
+use crate::ctx::Context as PlatformContext;
+use anyhow::{Context, Result};
 use qute_ctrl::{EupControl, SwitchState};
 
 use pico_args::Arguments;
 
-pub fn run(args: &mut Arguments, ctx: &Context) -> Result<()> {
+pub fn run(args: &mut Arguments, ctx: &PlatformContext) -> Result<()> {
     if ctx.get_opts().help {
         print_help();
         return Ok(());
     }
     let mode: Option<SwitchState> = args
         .opt_value_from_str(["-m", "--mode"])
-        .map_err(|e| Error::with_chain(e, "invalid input for mode"))?;
+        .with_context(|| "invalid input for mode")?;
 
     if let Some(mode) = mode {
         let chip = ctx.get_platform()?;

@@ -1,5 +1,5 @@
 use super::dev::Device;
-use crate::errors::*;
+use crate::Result;
 
 /// high level abstraction of  EC, only for it8528
 pub trait Controller {

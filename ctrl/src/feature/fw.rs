@@ -1,6 +1,5 @@
 use super::Feature;
-use crate::errors::*;
-use crate::hal::ec::Controller;
+use crate::{hal::ec::Controller, Result};
 
 pub trait Firmware: Feature {
     /// get ec version
@@ -13,8 +12,8 @@ pub trait Firmware: Feature {
                 cmd += 1;
             }
             bytes[8] = 0;
-            let cstr = std::ffi::CStr::from_bytes_with_nul(bytes).chain_err(|| "invalid data")?;
-            let ver = String::from(cstr.to_str().chain_err(|| "invalid data")?.trim());
+            let cstr = std::ffi::CStr::from_bytes_with_nul(bytes).unwrap();
+            let ver = String::from(cstr.to_str().unwrap().trim());
             Ok(ver)
         })
     }

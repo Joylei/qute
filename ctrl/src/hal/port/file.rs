@@ -1,5 +1,4 @@
 use super::{Port, ReadByte, WriteByte};
-use crate::errors::*;
 use crate::ffi;
 use libc;
 use std::fmt;

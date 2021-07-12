@@ -1,9 +1,9 @@
-use crate::ctx::Context;
-use crate::errors::*;
+use crate::ctx::Context as PlatformContext;
+use anyhow::{Context, Result};
 use pico_args::Arguments;
 use qute_ctrl::{Power, PowerRecoveryMode};
 
-pub fn run(args: &mut Arguments, ctx: &Context) -> Result<()> {
+pub fn run(args: &mut Arguments, ctx: &PlatformContext) -> Result<()> {
     if ctx.get_opts().help {
         print_help();
         return Ok(());
@@ -11,7 +11,7 @@ pub fn run(args: &mut Arguments, ctx: &Context) -> Result<()> {
     let chip = ctx.get_platform()?;
     let mode: Option<PowerRecoveryMode> = args
         .opt_value_from_str(["-m", "--mode"])
-        .map_err(|e| Error::with_chain(e, "invalid input for mode"))?;
+        .with_context(|| "invalid input for mode")?;
     if let Some(mode) = mode {
         chip.set_power_recovery_mode(mode)?;
         println!("√ power recovery mode was set to {}", mode);

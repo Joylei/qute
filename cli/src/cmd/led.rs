@@ -1,8 +1,9 @@
 use crate::ctx::Context;
-use crate::errors::*;
+use anyhow::Result;
 use pico_args::Arguments;
 
+#[allow(unused)]
 pub fn run(_args: &mut Arguments, _ctx: &Context) -> Result<()> {
-    println!("To Be Implemented!");
+    println!("To Be Done!");
     Ok(())
 }

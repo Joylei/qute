@@ -1,8 +1,8 @@
 extern crate libc;
 use super::{Port, ReadByte, WriteByte};
-use crate::errors::*;
-use crate::ffi;
+use crate::{ffi, Result};
 use std::fmt;
+use std::io::{Error, ErrorKind};
 
 pub struct AsmPort {
     port: u16,
@@ -14,7 +14,11 @@ impl AsmPort {
         unsafe {
             //if libc::iopl(3) != 0 {
             if ffi::ioperm(port.into(), 1, 1) != 0 {
-                return Err(format!("Failed to obtain io permission at port {:#04x}", port).into());
+                return Err(Error::new(
+                    ErrorKind::Other,
+                    format!("Failed to obtain io permission at port {:#04x}", port),
+                )
+                .into());
             }
         }
         let value = Self {

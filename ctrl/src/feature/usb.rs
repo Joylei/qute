@@ -1,6 +1,5 @@
 use super::Feature;
-use crate::errors::*;
-use crate::hal::ec::Controller;
+use crate::{hal::ec::Controller, Result};
 
 pub trait UsbControl: Feature {
     /// usb copy button pressed or not
